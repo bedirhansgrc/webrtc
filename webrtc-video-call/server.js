@@ -11,8 +11,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
   socket.on('join', (roomId) => {
-    const roomClients = io.sockets.adapter.rooms[roomId] || { length: 0 };
-    const numberOfClients = roomClients.length;
+    const roomClients = io.sockets.adapter.rooms.get(roomId) || new Set();
+    const numberOfClients = roomClients.size;
 
     if (numberOfClients === 0) {
       console.log(`Creating room ${roomId} and emitting room_created socket event`);
