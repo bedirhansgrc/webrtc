@@ -3,15 +3,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const usernameInput = document.getElementById('username-input');
     const roomInput = document.getElementById('room-input');
     const connectButton = document.getElementById('connect-button');
-  
+
     const videoChatContainer = document.getElementById('video-chat-container');
     const localVideoComponent = document.getElementById('local-video');
     const remoteVideoComponent = document.getElementById('remote-video');
-  
+
     const chatContainer = document.getElementById('chat-container');
     const messageInput = document.getElementById('message-input');
     const sendButton = document.getElementById('send-button');
     const messages = document.getElementById('messages');
+
+    // File transfer elements
+    const uploadInput = document.getElementById('upload-input');
+    const uploadButton = document.getElementById('upload-button');
+    const downloadInput = document.getElementById('download-input');
+    const downloadButton = document.getElementById('download-button');
 
     const socket = io();
     const mediaConstraints = {
@@ -24,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let rtcPeerConnection;
     let roomId;
     let username;
-  
+
     const iceServers = {
         iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
@@ -195,4 +201,60 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('ICE candidate sent');
         }
     }
+
+    // File transfer events
+    uploadButton.addEventListener('click', () => {
+        const file = uploadInput.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch(`/upload?filename=${file.name}`, {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                alert('File uploaded successfully');
+
+                // Yükleme başarılı olduğunda indirme bağlantısı oluştur
+                const downloadLink = document.createElement('a');
+                downloadLink.href = `/download?filename=${data.fileName}`;
+                downloadLink.textContent = `Download ${data.fileName}`;
+                downloadLink.setAttribute('download', data.fileName);
+                messages.appendChild(downloadLink);
+            }).catch(error => {
+                console.error('Error uploading file:', error);
+                alert('File upload failed');
+            });
+        } else {
+            alert('Please select a file to upload');
+        }
+    });
+
+    downloadButton.addEventListener('click', () => {
+        const filename = downloadInput.value.trim();
+        if (filename) {
+            window.location.href = `/download?filename=${filename}`;
+        } else {
+            alert('Please enter a filename to download');
+        }
+    });
+
+    // Listen for file upload and download events
+    socket.on('file_uploaded', (data) => {
+        if (data.success) {
+            alert('File uploaded successfully');
+        } else {
+            alert(`File upload failed: ${data.error}`);
+        }
+    });
+
+    socket.on('file_downloaded', (data) => {
+        if (data.success) {
+            alert('File downloaded successfully');
+        } else {
+            alert(`File download failed: ${data.error}`);
+        }
+    });
 });

@@ -2,12 +2,46 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
+const fs = require('fs');
+const fileUpload = require('express-fileupload');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+// Ensure the uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir);
+}
+
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(fileUpload());
+
+app.post('/upload', (req, res) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send('No files were uploaded.');
+    }
+
+    const uploadedFile = req.files.file;
+    const uploadPath = path.join(__dirname, 'uploads', uploadedFile.name);
+
+    uploadedFile.mv(uploadPath, (err) => {
+        if (err) return res.status(500).send(err);
+        
+        // Dosya yüklendiğinde istemciye dosya adını gönder
+        res.json({ fileName: uploadedFile.name, message: 'File uploaded successfully' });
+    });
+});
+
+app.get('/download', (req, res) => {
+    const filePath = path.join(__dirname, 'uploads', req.query.filename);
+    if (fs.existsSync(filePath)) {
+        res.download(filePath);
+    } else {
+        res.status(404).send('File not found');
+    }
+});
 
 io.on('connection', (socket) => {
     socket.on('join', (roomId) => {
@@ -26,6 +60,8 @@ io.on('connection', (socket) => {
             console.log(`Can't join room ${roomId}, emitting full_room socket event`);
             socket.emit('full_room', roomId);
         }
+
+        io.to(roomId).emit('user_list', Array.from(io.sockets.adapter.rooms.get(roomId) || []));
     });
 
     socket.on('start_call', (roomId) => {
@@ -62,6 +98,7 @@ io.on('connection', (socket) => {
         const rooms = Array.from(socket.rooms).filter(r => r !== socket.id);
         if (rooms.length > 0) {
             socket.roomId = rooms[0];
+            io.to(socket.roomId).emit('user_list', Array.from(io.sockets.adapter.rooms.get(socket.roomId) || []));
         }
     });
 });

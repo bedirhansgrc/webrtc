@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Video Call</title>
+    <title>WebRTC Video Call with File Transfer</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.ico">
 </head>
 <body>
-    <h1>WebRTC Video Call</h1>
+    <h1>WebRTC Video Call with File Transfer</h1>
     <div id="room-selection-container">
         <input type="text" id="username-input" placeholder="Enter your username">
         <input type="text" id="room-input" placeholder="Enter room ID">
@@ -21,8 +21,14 @@
         </div>
         <div id="chat-container">
             <div id="messages"></div>
-            <input type="text" id="message-input" placeholder="Type a message">
-            <button id="send-button">Send</button>
+            <div id="input-container">
+                <input type="text" id="message-input" placeholder="Type a message">
+                <button id="send-button">Send</button>
+                <div id="file-transfer-container">
+                    <input type="file" id="upload-input">
+                    <button id="upload-button">Upload</button>
+                </div>
+            </div>
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script> 
