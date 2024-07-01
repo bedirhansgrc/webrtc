@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Video Call</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico">
+</head>
+<body>
+    <h1>WebRTC Video Call</h1>
+    <div id="room-selection-container">
+        <input type="text" id="room-input" placeholder="Enter room ID">
+        <button id="connect-button">Connect</button>
+    </div>
+    <div id="video-chat-container" style="display: none;">
+        <video id="local-video" autoplay muted></video>
+        <video id="remote-video" autoplay></video>
+    </div>
+    <script src="/socket.io/socket.io.js"></script> 
+    <script src="client.js"></script>
+</body>
+</html>
