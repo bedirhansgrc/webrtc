@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // File transfer elements
     const uploadInput = document.getElementById('upload-input');
     const uploadButton = document.getElementById('upload-button');
-    const downloadInput = document.getElementById('download-input');
-    const downloadButton = document.getElementById('download-button');
 
     const socket = io();
     const mediaConstraints = {
@@ -209,20 +207,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('file', file);
 
-            fetch(`/upload?filename=${file.name}`, {
+            fetch(`/upload`, {
                 method: 'POST',
                 body: formData
             }).then(response => response.json())
             .then(data => {
-                console.log(data.message);
                 alert('File uploaded successfully');
-
-                // Yükleme başarılı olduğunda indirme bağlantısı oluştur
-                const downloadLink = document.createElement('a');
-                downloadLink.href = `/download?filename=${data.fileName}`;
-                downloadLink.textContent = `Download ${data.fileName}`;
-                downloadLink.setAttribute('download', data.fileName);
-                messages.appendChild(downloadLink);
             }).catch(error => {
                 console.error('Error uploading file:', error);
                 alert('File upload failed');
@@ -232,29 +222,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    downloadButton.addEventListener('click', () => {
-        const filename = downloadInput.value.trim();
-        if (filename) {
-            window.location.href = `/download?filename=${filename}`;
-        } else {
-            alert('Please enter a filename to download');
-        }
-    });
-
-    // Listen for file upload and download events
+    // Dosya yüklendiğinde gelen mesajı görüntüleyin
     socket.on('file_uploaded', (data) => {
-        if (data.success) {
-            alert('File uploaded successfully');
-        } else {
-            alert(`File upload failed: ${data.error}`);
-        }
-    });
-
-    socket.on('file_downloaded', (data) => {
-        if (data.success) {
-            alert('File downloaded successfully');
-        } else {
-            alert(`File download failed: ${data.error}`);
-        }
+        const messageElement = document.createElement('p');
+        const downloadLinkElement = document.createElement('a');
+        downloadLinkElement.href = data.downloadLink;
+        downloadLinkElement.textContent = `Download ${data.fileName}`;
+        downloadLinkElement.setAttribute('download', data.fileName);
+        
+        messageElement.appendChild(downloadLinkElement);
+        messages.appendChild(messageElement);
     });
 });

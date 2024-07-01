@@ -29,7 +29,11 @@ app.post('/upload', (req, res) => {
     uploadedFile.mv(uploadPath, (err) => {
         if (err) return res.status(500).send(err);
         
-        // Dosya yüklendiğinde istemciye dosya adını gönder
+        const downloadLink = `/download?filename=${uploadedFile.name}`;
+        
+        // Dosya yüklendiğinde istemcilere dosya adını ve indirme linkini gönder
+        io.emit('file_uploaded', { fileName: uploadedFile.name, downloadLink });
+        
         res.json({ fileName: uploadedFile.name, message: 'File uploaded successfully' });
     });
 });
