@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Dosya yüklendiğinde gelen mesajı görüntüleyin
     socket.on('file_uploaded', (data) => {
         const messageElement = document.createElement('p');
         const downloadLinkElement = document.createElement('a');
