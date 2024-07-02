@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleVideoButton = document.getElementById('toggle-video-button');
     const toggleAudioButton = document.getElementById('toggle-audio-button');
     const shareScreenButton = document.getElementById('share-screen-button');
+    const leaveRoomButton = document.getElementById('leave-room-button');
 
     // File transfer elements
     const uploadInput = document.getElementById('upload-input');
@@ -160,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadLinkElement.href = data.downloadLink;
         downloadLinkElement.textContent = `Download ${data.fileName}`;
         downloadLinkElement.setAttribute('download', data.fileName);
-        
+
         messageElement.appendChild(downloadLinkElement);
         messages.appendChild(messageElement);
         messageSound.play();
@@ -259,10 +260,10 @@ document.addEventListener('DOMContentLoaded', () => {
         notificationElement.textContent = message;
         notificationElement.className = 'notification';
         document.body.appendChild(notificationElement);
-        
+
         setTimeout(() => {
             notificationElement.classList.add('show');
-        }, 100); 
+        }, 100);
 
         setTimeout(() => {
             notificationElement.classList.remove('show');
@@ -279,25 +280,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('file', file);
 
-            
+
             progressContainer.style.display = 'flex';
 
             fetch(`/upload`, {
                 method: 'POST',
                 body: formData
             }).then(response => response.json())
-            .then(data => {
-                showNotification('File uploaded successfully');
-                progressContainer.style.display = 'none';
-                uploadProgress.value = 0;
-                progressPercent.textContent = '0%';
-            }).catch(error => {
-                console.error('Error uploading file:', error);
-                showNotification('File upload failed');
-                progressContainer.style.display = 'none';
-                uploadProgress.value = 0;
-                progressPercent.textContent = '0%';
-            });
+                .then(data => {
+                    showNotification('File uploaded successfully');
+                    progressContainer.style.display = 'none';
+                    uploadProgress.value = 0;
+                    progressPercent.textContent = '0%';
+                }).catch(error => {
+                    console.error('Error uploading file:', error);
+                    showNotification('File upload failed');
+                    progressContainer.style.display = 'none';
+                    uploadProgress.value = 0;
+                    progressPercent.textContent = '0%';
+                });
         } else {
             showNotification('Please select a file to upload');
         }
@@ -348,7 +349,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    leaveRoomButton.addEventListener('click', () => {
+        leaveRoom();
+    });
 
+    function leaveRoom() {
+        if (rtcPeerConnection) {
+            rtcPeerConnection.close();
+            rtcPeerConnection = null;
+        }
+        socket.emit('leave_room', { roomId, username });
+        socket.disconnect();
+        hideVideoConference();
+        roomId = null;
+    }
+
+    function hideVideoConference() {
+        videoChatContainer.style.display = 'none';
+        roomSelectionContainer.style.display = 'flex';
+    }
+    
     function stopScreenSharing() {
         if (!isScreenSharing) return;
 

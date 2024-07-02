@@ -97,6 +97,13 @@ io.on('connection', (socket) => {
         socket.broadcast.to(data.roomId).emit('message', data);
     });
 
+    socket.on('leave_room', (data) => {
+        const { roomId, username } = data;
+        socket.leave(roomId);
+        socket.broadcast.to(roomId).emit('user_disconnected', username);
+        io.to(roomId).emit('user_list', Array.from(io.sockets.adapter.rooms.get(roomId) || []));
+    });
+    
     socket.on('disconnecting', () => {
         const rooms = Array.from(socket.rooms).filter(r => r !== socket.id);
         if (rooms.length > 0) {
