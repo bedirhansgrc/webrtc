@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleAudioButton = document.getElementById('toggle-audio-button');
     const shareScreenButton = document.getElementById('share-screen-button');
     const leaveRoomButton = document.getElementById('leave-room-button');
+    const topTitle = document.getElementById('top-title');
 
     // File transfer elements
     const uploadInput = document.getElementById('upload-input');
@@ -353,6 +354,10 @@ document.addEventListener('DOMContentLoaded', () => {
         leaveRoom();
     });
 
+    topTitle.addEventListener('click', () => {
+        leaveRoom();
+    });
+
     function leaveRoom() {
         if (rtcPeerConnection) {
             rtcPeerConnection.close();
@@ -367,8 +372,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideVideoConference() {
         videoChatContainer.style.display = 'none';
         roomSelectionContainer.style.display = 'flex';
+        usernameInput.value = '';
+        roomInput.value = '';
     }
-    
+
     function stopScreenSharing() {
         if (!isScreenSharing) return;
 
