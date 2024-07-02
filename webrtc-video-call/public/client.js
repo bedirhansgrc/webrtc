@@ -1,4 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    const joinSound = new Audio('/sounds/join.mp3');
+    const dcSound = new Audio('/sounds/dc.mp3');
+    const messageSound = new Audio('/sounds/message.mp3');
+    const muteSound = new Audio('/sounds/mute.mp3');
+    const unmuteSound = new Audio('/sounds/unmute.mp3');
+
+    joinSound.load();
+    dcSound.load();
+    messageSound.load();
+    muteSound.load();
+    unmuteSound.load();
+
     const roomSelectionContainer = document.getElementById('room-selection-container');
     const usernameInput = document.getElementById('username-input');
     const roomInput = document.getElementById('room-input');
@@ -14,10 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const messages = document.getElementById('messages');
     const toggleVideoButton = document.getElementById('toggle-video-button');
     const toggleAudioButton = document.getElementById('toggle-audio-button');
+    const shareScreenButton = document.getElementById('share-screen-button');
 
     // File transfer elements
     const uploadInput = document.getElementById('upload-input');
     const uploadButton = document.getElementById('upload-button');
+    const progressContainer = document.getElementById('progress-container');
+    const uploadProgress = document.getElementById('upload-progress');
+    const progressPercent = document.getElementById('progress-percent');
 
     const socket = io();
     const mediaConstraints = {
@@ -30,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let rtcPeerConnection;
     let roomId;
     let username;
+    let screenSharingStream;
+    let isScreenSharing = false;
 
     const iceServers = {
         iceServers: [
@@ -40,11 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { urls: 'stun:stun4.l.google.com:19302' },
         ],
     };
-
-    // Ses dosyalarını yükle
-    const joinSound = new Audio('/sounds/join.mp3');
-    const dcSound = new Audio('/sounds/dc.mp3');
-    const messageSound = new Audio('/sounds/message.mp3');
 
     connectButton.addEventListener('click', () => {
         username = usernameInput.value.trim();
@@ -239,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Bildirim fonksiyonu
+    // Notification function
     function showNotification(message) {
         const notificationElement = document.createElement('div');
         notificationElement.textContent = message;
@@ -248,14 +262,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         setTimeout(() => {
             notificationElement.classList.add('show');
-        }, 100); // 100ms delay to trigger the CSS transition
+        }, 100); 
 
         setTimeout(() => {
             notificationElement.classList.remove('show');
             setTimeout(() => {
                 notificationElement.remove();
-            }, 500); // 500ms to match the CSS transition duration
-        }, 5000); // Notification stays for 5 seconds
+            }, 500);
+        }, 5000);
     }
 
     // File transfer events
@@ -265,15 +279,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('file', file);
 
+            
+            progressContainer.style.display = 'flex';
+
             fetch(`/upload`, {
                 method: 'POST',
                 body: formData
             }).then(response => response.json())
             .then(data => {
                 showNotification('File uploaded successfully');
+                progressContainer.style.display = 'none';
+                uploadProgress.value = 0;
+                progressPercent.textContent = '0%';
             }).catch(error => {
                 console.error('Error uploading file:', error);
                 showNotification('File upload failed');
+                progressContainer.style.display = 'none';
+                uploadProgress.value = 0;
+                progressPercent.textContent = '0%';
             });
         } else {
             showNotification('Please select a file to upload');
@@ -285,10 +308,102 @@ document.addEventListener('DOMContentLoaded', () => {
         videoTrack.enabled = !videoTrack.enabled;
         toggleVideoButton.textContent = videoTrack.enabled ? 'Turn Off Video' : 'Turn On Video';
     });
-    
+
     toggleAudioButton.addEventListener('click', () => {
         const audioTrack = localStream.getAudioTracks()[0];
         audioTrack.enabled = !audioTrack.enabled;
         toggleAudioButton.textContent = audioTrack.enabled ? 'Turn Off Audio' : 'Turn On Audio';
+
+        if (audioTrack.enabled) {
+            unmuteSound.play();
+        } else {
+            muteSound.play();
+        }
+    });
+
+    shareScreenButton.addEventListener('click', async () => {
+        if (!isScreenSharing) {
+            try {
+                screenSharingStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                const screenTrack = screenSharingStream.getVideoTracks()[0];
+
+                screenTrack.onended = () => {
+                    stopScreenSharing();
+                };
+
+                const videoSender = rtcPeerConnection.getSenders().find(sender => sender.track.kind === 'video');
+                if (videoSender) {
+                    videoSender.replaceTrack(screenTrack);
+                }
+
+                localVideoComponent.srcObject = screenSharingStream;
+
+                isScreenSharing = true;
+                shareScreenButton.textContent = 'Stop Sharing';
+            } catch (error) {
+                console.error('Error sharing screen:', error);
+            }
+        } else {
+            stopScreenSharing();
+        }
+    });
+
+
+    function stopScreenSharing() {
+        if (!isScreenSharing) return;
+
+        const videoTrack = localStream.getVideoTracks()[0];
+        const videoSender = rtcPeerConnection.getSenders().find(sender => sender.track.kind === 'video');
+        if (videoSender) {
+            videoSender.replaceTrack(videoTrack);
+        }
+
+        localVideoComponent.srcObject = localStream;
+        screenSharingStream.getTracks().forEach(track => track.stop());
+
+        isScreenSharing = false;
+        shareScreenButton.textContent = 'Share Screen';
+    }
+
+    function updateProgress(event) {
+        if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            uploadProgress.value = percentComplete;
+            progressPercent.textContent = `${percentComplete}%`;
+        }
+    }
+
+    uploadInput.addEventListener('change', () => {
+        const file = uploadInput.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+
+            xhr.upload.addEventListener('progress', updateProgress);
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    showNotification('File uploaded successfully');
+                } else {
+                    showNotification('File upload failed');
+                }
+                progressContainer.style.display = 'none';
+                uploadProgress.value = 0;
+                progressPercent.textContent = '0%';
+            };
+
+            xhr.onerror = () => {
+                showNotification('File upload failed');
+                progressContainer.style.display = 'none';
+                uploadProgress.value = 0;
+                progressPercent.textContent = '0%';
+            };
+
+            progressContainer.style.display = 'flex';
+            xhr.send(formData);
+        }
     });
 });

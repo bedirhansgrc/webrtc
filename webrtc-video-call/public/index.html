@@ -22,6 +22,8 @@
         <div id="controls-container">
             <button id="toggle-video-button">Toggle Video</button>
             <button id="toggle-audio-button">Toggle Audio</button>
+            <button id="share-screen-button">Share Screen</button>
+
         </div>        
         <div id="chat-container">
             <div id="messages"></div>
@@ -33,6 +35,10 @@
                     <button id="upload-button">Upload</button>
                 </div>
             </div>
+            <div id="progress-container" style="display: none;">
+                <progress id="upload-progress" max="100" value="0"></progress>
+                <span id="progress-percent">0%</span>
+            </div>        
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script> 

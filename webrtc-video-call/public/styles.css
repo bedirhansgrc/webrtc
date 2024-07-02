@@ -43,14 +43,14 @@ body {
 }
 
 #room-selection-container button {
-  background-color: #ffd700; /* Sarı renk */
-  color: #000; /* Siyah renk */
+  background-color: #ffd700; 
+  color: #000;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 #room-selection-container button:hover {
-  background-color: #fff700; /* Daha koyu sarı renk */
+  background-color: #fff700; 
 }
 
 #video-chat-container {
@@ -59,7 +59,7 @@ body {
   align-items: center;
   justify-content: center;
   width: 80%;
-  max-width: 1200px;
+  max-width: 1600px;
   background-color: rgba(0, 0, 0, 0.32);
   border-radius: 10px;
   padding: 20px;
@@ -76,7 +76,7 @@ body {
 
   border-radius: 10px;
   width: 100%;
-  background-color: #22222200; /* Siyah arkaplan */
+  background-color: #22222200;
 }
 
 video {
@@ -88,7 +88,7 @@ video {
 }
 
 #chat-container {
-  background-color: #333; /* Daha açık siyah */
+  background-color: #333; 
   color: white;
   padding: 20px;
   width: 100%;
@@ -106,7 +106,7 @@ video {
   width: 100%;
   height: 150px;
   overflow-y: auto;
-  background-color: #111; /* Siyah arkaplan */
+  background-color: #111;
   margin-bottom: 10px;
 }
 
@@ -118,7 +118,7 @@ video {
 #messages a {
   text-align: left;
   margin: 5px 0;
-  color: #ffd700; /* Sarı renk */
+  color: #ffd700; 
 }
 
 #input-container {
@@ -141,7 +141,7 @@ video {
 
 #send-button {
   padding: 10px 20px;
-  background-color: #ffd700; /* Sarı renk */
+  background-color: #ffd700;
   color: black;
   border: none;
   border-radius: 5px;
@@ -151,7 +151,7 @@ video {
 }
 
 #send-button:hover {
-  background-color: #fff700; /* Daha koyu sarı renk */
+  background-color: #fff700; 
 }
 
 #messages::-webkit-scrollbar {
@@ -164,12 +164,12 @@ video {
 }
 
 #messages::-webkit-scrollbar-thumb {
-  background: #ffd700; /* Sarı renk */
+  background: #ffd700; 
   border-radius: 10px;
 }
 
 #messages::-webkit-scrollbar-thumb:hover {
-  background: #fff700; /* Daha koyu sarı renk */
+  background: #fff700; 
 }
 
 #remote-video {
@@ -203,24 +203,23 @@ video {
 }
 
 #file-transfer-container button {
-  background-color: #ffd700; /* Sarı renk */
+  background-color: #ffd700;
   color: #000;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 #file-transfer-container button:hover {
-  background-color: #fff700; /* Daha koyu sarı renk */
+  background-color: #fff700;
 }
 
-/* Bildirim Stilleri */
 .notification {
     position: fixed;
     top: -50px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #ffd700; /* Sarı renk */
-    color: #000; /* Siyah renk */
+    background-color: #ffd700; 
+    color: #000; 
     padding: 20px 40px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -253,3 +252,14 @@ video {
   background-color: #fff700;
 }
 
+#progress-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+#upload-progress {
+  width: 80%;
+  margin-right: 10px;
+}
