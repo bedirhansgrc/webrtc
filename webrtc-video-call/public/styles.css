@@ -65,8 +65,8 @@ body {
   justify-content: center;
   width: 80%;
   max-width: 1600px;
-  background-color: rgba(0, 0, 0, 0.32);
-  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.218);
+  border-radius: 25px;
   padding: 20px;
   box-sizing: border-box;
 
@@ -102,6 +102,7 @@ video {
   flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
+  border: 3px solid black;
 }
 
 #messages {
@@ -190,7 +191,7 @@ video {
   background-color: #555;
   width: 25%;
   border-radius: 5px;
-  margin-left: 5px;
+  margin-left: 2px;
 }
 
 #file-transfer-container input,
@@ -267,4 +268,16 @@ video {
 #upload-progress {
   width: 80%;
   margin-right: 10px;
+}
+
+#emoji-button {
+  height: 37px ;
+  padding: 10px 20px;
+  background-color: #ffd700;
+  color: black;
+  border: 1px solid black;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 2px;
 }
