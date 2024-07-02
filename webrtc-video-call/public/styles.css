@@ -2,7 +2,8 @@ body {
   font-family: 'Arial', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #1e1e1e;
+  background: url('background.jpg') no-repeat center center fixed;
+  background-size: cover;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -12,9 +13,12 @@ body {
   text-align: center;
 }
 
-h1 {
-  margin-top: 20px;
-  color: #ff9800;
+#top-title {
+  font-family: Impact, "fantasy";
+  margin-top: 40px;
+  color: #ffd700;
+  font-size: 80px;
+  margin-bottom: 20px;
 }
 
 #room-selection-container {
@@ -39,14 +43,14 @@ h1 {
 }
 
 #room-selection-container button {
-  background-color: #ff9800;
-  color: #fff;
+  background-color: #ffd700; /* Sarı renk */
+  color: #000; /* Siyah renk */
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 #room-selection-container button:hover {
-  background-color: #e68900;
+  background-color: #fff700; /* Daha koyu sarı renk */
 }
 
 #video-chat-container {
@@ -56,11 +60,11 @@ h1 {
   justify-content: center;
   width: 80%;
   max-width: 1200px;
-  background-color: #242424;
+  background-color: rgba(0, 0, 0, 0.32);
   border-radius: 10px;
   padding: 20px;
   box-sizing: border-box;
-  margin-top: 20px;
+
 }
 
 #video-container {
@@ -68,11 +72,11 @@ h1 {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  padding: 10px;
+  padding: 10px 10px 0px 10px;
+
   border-radius: 10px;
   width: 100%;
-  margin-bottom: 20px;
-  background-color: #1e1e1e;
+  background-color: #22222200; /* Siyah arkaplan */
 }
 
 video {
@@ -84,7 +88,7 @@ video {
 }
 
 #chat-container {
-  background-color: #444;
+  background-color: #333; /* Daha açık siyah */
   color: white;
   padding: 20px;
   width: 100%;
@@ -96,13 +100,13 @@ video {
 }
 
 #messages {
-  border: 1px solid #555;
+  border: 1px solid #444;
   border-radius: 10px;
   padding: 10px;
   width: 100%;
   height: 150px;
   overflow-y: auto;
-  background-color: #222;
+  background-color: #111; /* Siyah arkaplan */
   margin-bottom: 10px;
 }
 
@@ -110,10 +114,11 @@ video {
   text-align: left;
   margin: 5px 0;
 }
+
 #messages a {
   text-align: left;
   margin: 5px 0;
-  color: #ff9800;
+  color: #ffd700; /* Sarı renk */
 }
 
 #input-container {
@@ -136,8 +141,8 @@ video {
 
 #send-button {
   padding: 10px 20px;
-  background-color: #ff9800;
-  color: white;
+  background-color: #ffd700; /* Sarı renk */
+  color: black;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -146,7 +151,7 @@ video {
 }
 
 #send-button:hover {
-  background-color: #e68900;
+  background-color: #fff700; /* Daha koyu sarı renk */
 }
 
 #messages::-webkit-scrollbar {
@@ -159,12 +164,12 @@ video {
 }
 
 #messages::-webkit-scrollbar-thumb {
-  background: #ff9800;
+  background: #ffd700; /* Sarı renk */
   border-radius: 10px;
 }
 
 #messages::-webkit-scrollbar-thumb:hover {
-  background: #e68900;
+  background: #fff700; /* Daha koyu sarı renk */
 }
 
 #remote-video {
@@ -198,12 +203,53 @@ video {
 }
 
 #file-transfer-container button {
-  background-color: #ff9800;
-  color: #fff;
+  background-color: #ffd700; /* Sarı renk */
+  color: #000;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 #file-transfer-container button:hover {
-  background-color: #e68900;
+  background-color: #fff700; /* Daha koyu sarı renk */
 }
+
+/* Bildirim Stilleri */
+.notification {
+    position: fixed;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ffd700; /* Sarı renk */
+    color: #000; /* Siyah renk */
+    padding: 20px 40px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    font-size: 1.5em;
+    z-index: 1000;
+    transition: top 0.5s ease-in-out;
+}
+
+.notification.show {
+    top: 20px;
+}
+#controls-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+#controls-container button {
+  padding: 10px 20px;
+  margin: 0 5px;
+  background-color: #ffd700;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#controls-container button:hover {
+  background-color: #fff700;
+}
+

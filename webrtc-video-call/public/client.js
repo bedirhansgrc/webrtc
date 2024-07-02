@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageInput = document.getElementById('message-input');
     const sendButton = document.getElementById('send-button');
     const messages = document.getElementById('messages');
+    const toggleVideoButton = document.getElementById('toggle-video-button');
+    const toggleAudioButton = document.getElementById('toggle-audio-button');
 
     // File transfer elements
     const uploadInput = document.getElementById('upload-input');
@@ -39,6 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
     };
 
+    // Ses dosyalarını yükle
+    const joinSound = new Audio('/sounds/join.mp3');
+    const dcSound = new Audio('/sounds/dc.mp3');
+    const messageSound = new Audio('/sounds/message.mp3');
+
     connectButton.addEventListener('click', () => {
         username = usernameInput.value.trim();
         if (!username) {
@@ -52,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Socket event callback: room_created');
         await setLocalStream(mediaConstraints);
         isRoomCreator = true;
+        showDisconnectImage();
     });
 
     socket.on('room_joined', async () => {
@@ -111,16 +119,47 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('message', (data) => {
         console.log(`Received message: ${data.message} from ${data.sender}`);
         displayMessage(data);
+        messageSound.play();
     });
 
-    socket.on('user_disconnected', () => {
-        console.log('User disconnected');
-        remoteVideoComponent.src = '/disconnect.jpg';
+    socket.on('user_joined', (username) => {
+        console.log(`User ${username} joined`);
+        showNotification(`${username} joined`);
+        hideDisconnectImage();
+        joinSound.play();
+    });
+
+    socket.on('user_disconnected', (username) => {
+        console.log(`${username} disconnected`);
+        showNotification(`${username} disconnected`);
+        showDisconnectImage();
+        dcSound.play();
         if (rtcPeerConnection) {
             rtcPeerConnection.close();
             rtcPeerConnection = null;
         }
     });
+
+    socket.on('file_uploaded', (data) => {
+        const messageElement = document.createElement('p');
+        const downloadLinkElement = document.createElement('a');
+        downloadLinkElement.href = data.downloadLink;
+        downloadLinkElement.textContent = `Download ${data.fileName}`;
+        downloadLinkElement.setAttribute('download', data.fileName);
+        
+        messageElement.appendChild(downloadLinkElement);
+        messages.appendChild(messageElement);
+        messageSound.play();
+    });
+
+    function showDisconnectImage() {
+        remoteVideoComponent.srcObject = null;
+        remoteVideoComponent.src = '/disconnect.jpg';
+    }
+
+    function hideDisconnectImage() {
+        remoteVideoComponent.src = '';
+    }
 
     sendButton.addEventListener('click', () => {
         sendMessage();
@@ -159,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please type a room ID');
         } else {
             roomId = room;
-            socket.emit('join', room);
+            socket.emit('join', { roomId, username });
             showVideoConference();
         }
     }
@@ -200,6 +239,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Bildirim fonksiyonu
+    function showNotification(message) {
+        const notificationElement = document.createElement('div');
+        notificationElement.textContent = message;
+        notificationElement.className = 'notification';
+        document.body.appendChild(notificationElement);
+        
+        setTimeout(() => {
+            notificationElement.classList.add('show');
+        }, 100); // 100ms delay to trigger the CSS transition
+
+        setTimeout(() => {
+            notificationElement.classList.remove('show');
+            setTimeout(() => {
+                notificationElement.remove();
+            }, 500); // 500ms to match the CSS transition duration
+        }, 5000); // Notification stays for 5 seconds
+    }
+
     // File transfer events
     uploadButton.addEventListener('click', () => {
         const file = uploadInput.files[0];
@@ -212,24 +270,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             }).then(response => response.json())
             .then(data => {
-                alert('File uploaded successfully');
+                showNotification('File uploaded successfully');
             }).catch(error => {
                 console.error('Error uploading file:', error);
-                alert('File upload failed');
+                showNotification('File upload failed');
             });
         } else {
-            alert('Please select a file to upload');
+            showNotification('Please select a file to upload');
         }
     });
 
-    socket.on('file_uploaded', (data) => {
-        const messageElement = document.createElement('p');
-        const downloadLinkElement = document.createElement('a');
-        downloadLinkElement.href = data.downloadLink;
-        downloadLinkElement.textContent = `Download ${data.fileName}`;
-        downloadLinkElement.setAttribute('download', data.fileName);
-        
-        messageElement.appendChild(downloadLinkElement);
-        messages.appendChild(messageElement);
+    toggleVideoButton.addEventListener('click', () => {
+        const videoTrack = localStream.getVideoTracks()[0];
+        videoTrack.enabled = !videoTrack.enabled;
+        toggleVideoButton.textContent = videoTrack.enabled ? 'Turn Off Video' : 'Turn On Video';
+    });
+    
+    toggleAudioButton.addEventListener('click', () => {
+        const audioTrack = localStream.getAudioTracks()[0];
+        audioTrack.enabled = !audioTrack.enabled;
+        toggleAudioButton.textContent = audioTrack.enabled ? 'Turn Off Audio' : 'Turn On Audio';
     });
 });

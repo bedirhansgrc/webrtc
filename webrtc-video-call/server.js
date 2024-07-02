@@ -48,7 +48,10 @@ app.get('/download', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    socket.on('join', (roomId) => {
+    socket.on('join', (data) => {
+        const { roomId, username } = data;
+        socket.username = username; // Kullanıcı adını socket nesnesine kaydet
+
         const roomClients = io.sockets.adapter.rooms.get(roomId) || new Set();
         const numberOfClients = roomClients.size;
 
@@ -65,6 +68,8 @@ io.on('connection', (socket) => {
             socket.emit('full_room', roomId);
         }
 
+        // Kullanıcının odaya katıldığını bildir
+        socket.broadcast.to(roomId).emit('user_joined', username);
         io.to(roomId).emit('user_list', Array.from(io.sockets.adapter.rooms.get(roomId) || []));
     });
 
@@ -93,11 +98,6 @@ io.on('connection', (socket) => {
         socket.broadcast.to(data.roomId).emit('message', data);
     });
 
-    socket.on('disconnect', () => {
-        console.log(`User disconnected from room ${socket.roomId}`);
-        socket.broadcast.to(socket.roomId).emit('user_disconnected');
-    });
-
     socket.on('disconnecting', () => {
         const rooms = Array.from(socket.rooms).filter(r => r !== socket.id);
         if (rooms.length > 0) {
@@ -105,7 +105,16 @@ io.on('connection', (socket) => {
             io.to(socket.roomId).emit('user_list', Array.from(io.sockets.adapter.rooms.get(socket.roomId) || []));
         }
     });
+
+    socket.on('disconnect', () => {
+        console.log(`User disconnected from room ${socket.roomId}`);
+        if (socket.roomId) {
+            socket.broadcast.to(socket.roomId).emit('user_disconnected', socket.username); // Kullanıcı adını gönder
+            io.to(socket.roomId).emit('user_list', Array.from(io.sockets.adapter.rooms.get(socket.roomId) || []));
+        }
+    });
 });
+
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
