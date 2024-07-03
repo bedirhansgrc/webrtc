@@ -31,7 +31,11 @@
             <div id="input-container">
                 <input type="text" id="message-input" placeholder="Type a message">
                 <button id="send-button">Send</button>
-                <button id="emoji-button">😀</button>
+                <div id="emoji-picker-container">
+                    <button id="emoji-button">😀</button>
+                    <emoji-picker id="emoji-picker" style="display: none;"></emoji-picker>
+                </div>
+                
                 <div id="file-transfer-container">
                     <input type="file" id="upload-input">
                     <button id="upload-button">Upload</button>

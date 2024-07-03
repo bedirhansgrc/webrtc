@@ -63,6 +63,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
     };
 
+    topTitle.addEventListener('click', () => {
+        if (rtcPeerConnection) {
+            rtcPeerConnection.close();
+            rtcPeerConnection = null;
+        }
+        socket.emit('leave_room', { roomId, username });
+        socket.disconnect();
+        hideVideoConference();
+        roomId = null;
+    });
+
     connectButton.addEventListener('click', () => {
         username = usernameInput.value.trim();
         if (!username) {
@@ -409,7 +420,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     emojiButton.addEventListener('click', () => {
-        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+        if (emojiPicker.style.display === 'none' || emojiPicker.style.display === '') {
+            emojiPicker.style.display = 'block';
+        } else {
+            emojiPicker.style.display = 'none';
+        }
     });
 
     emojiPicker.addEventListener('emoji-click', event => {
